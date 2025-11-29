@@ -96,43 +96,41 @@ export default function Hero() {
           {/* CTA Buttons */}
           <MotionBox variants={staggerItem} mt={4}>
             <HStack spacing={4} flexWrap="wrap" justify="center">
-              <Link href="/projects" passHref legacyBehavior>
-                <Button
-                  as="a"
-                  size="lg"
-                  variant="primary"
-                  fontSize="md"
-                  px={8}
-                  _hover={{
-                    transform: 'translateY(-2px)',
-                    boxShadow: colorMode === 'dark'
-                      ? '0 0 20px rgba(165, 180, 252, 0.6)'
-                      : '0 4px 12px rgba(99, 102, 241, 0.4)',
-                  }}
+              <Button
+                as={Link}
+                href="/projects"
+                size="lg"
+                variant="primary"
+                fontSize="md"
+                px={8}
+                _hover={{
+                  transform: 'translateY(-2px)',
+                  boxShadow: colorMode === 'dark'
+                    ? '0 0 20px rgba(165, 180, 252, 0.6)'
+                    : '0 4px 12px rgba(99, 102, 241, 0.4)',
+                }}
 
-                >
-                  View Projects
-                </Button>
-              </Link>
+              >
+                View Projects
+              </Button>
 
-              <Link href="/blog" passHref legacyBehavior>
-                <Button
-                  as="a"
-                  size="lg"
-                  variant="accent"
-                  fontSize="md"
-                  px={8}
-                  _hover={{
-                    transform: 'translateY(-2px)',
-                    boxShadow: colorMode === 'dark'
-                      ? '0 0 20px rgba(244, 114, 182, 0.6)'
-                      : '0 4px 12px rgba(244, 114, 182, 0.4)',
-                  }}
+              <Button
+                as={Link}
+                href="/blog"
+                size="lg"
+                variant="accent"
+                fontSize="md"
+                px={8}
+                _hover={{
+                  transform: 'translateY(-2px)',
+                  boxShadow: colorMode === 'dark'
+                    ? '0 0 20px rgba(244, 114, 182, 0.6)'
+                    : '0 4px 12px rgba(244, 114, 182, 0.4)',
+                }}
 
-                >
-                  Read Blog
-                </Button>
-              </Link>
+              >
+                Read Blog
+              </Button>
 
               <Button
                 as="a"

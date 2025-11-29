@@ -101,9 +101,14 @@ function WaveMesh() {
 
 
   useFrame(({ clock, camera }) => {
-    if (materialRef.current) {
+    if (materialRef.current && materialRef.current.uMouse) {
       materialRef.current.uTime.value = clock.getElapsedTime();
-      materialRef.current.uMouse.value = new THREE.Vector2(x * 0.5, y * 0.5);
+      
+      // Safely update the Vector2 uniform
+      if (materialRef.current.uMouse.value && materialRef.current.uMouse.value.set) {
+        materialRef.current.uMouse.value.set(x * 0.5, y * 0.5);
+      }
+      
       materialRef.current.uDarkMode.value = colorMode === 'dark' ? 1 : 0;
       
       // Update shader colors based on theme

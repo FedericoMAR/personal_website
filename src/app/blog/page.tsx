@@ -52,13 +52,14 @@ export default function BlogPage() {
               spacing={8}
             >
               {blogs.map((blog, index) => (
-                <Link key={blog.slug} href={blog.url} passHref legacyBehavior>
-                  <MotionBox
-                    as="a"
-                    variants={staggerItem}
-                    custom={index * 0.1}
-                    p={6}
-                    bg="whiteAlpha.50"
+                <MotionBox
+                  key={blog.slug}
+                  as={Link}
+                  href={blog.url}
+                  variants={staggerItem}
+                  custom={index * 0.1}
+                  p={6}
+                  bg="whiteAlpha.50"
                     borderRadius="xl"
                     borderWidth="1px"
                     borderColor="whiteAlpha.100"
@@ -115,7 +116,6 @@ export default function BlogPage() {
                       </Text>
                     </VStack>
                   </MotionBox>
-                </Link>
               ))}
             </SimpleGrid>
           </MotionVStack>
