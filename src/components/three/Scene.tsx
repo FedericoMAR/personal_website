@@ -2,22 +2,22 @@
 'use client';
 
 import React, { useRef, useMemo, Suspense } from 'react';
-import { extend, useFrame, useThree } from '@react-three/fiber';
+import { extend, useFrame } from '@react-three/fiber';
 import { Environment, shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 import { useMousePosition, useReducedMotion } from './MotionManager';
 import { useColorMode } from '@chakra-ui/react';
 import { theme } from '@/theme/index';
 
-// 1. Define the Shader Material (exported for R3F to recognize it)
+// 1. Define the Shader Material with properly initialized uniforms
 const WaveShaderMaterial = shaderMaterial(
   {
-    uTime: { value: 0 },
-    uMouse: { value: new THREE.Vector2(0, 0) },
-    uColorStart: { value: new THREE.Color(theme.colors.brand.primary[500]) },
-    uColorEnd: { value: new THREE.Color(theme.colors.brand.accent[400]) },
-    uLightIntensity: { value: 0.1 },
-    uDarkMode: { value: 0 }, // 0 for light, 1 for dark
+    uTime: 0,
+    uMouse: new THREE.Vector2(0, 0),
+    uColorStart: new THREE.Color(theme.colors.brand.primary[500]),
+    uColorEnd: new THREE.Color(theme.colors.brand.accent[400]),
+    uLightIntensity: 0.1,
+    uDarkMode: 0,
   },
   // Vertex Shader
   `
@@ -85,7 +85,7 @@ declare global {
   }
 }
 
-// 2. The Interactive Mesh Component
+// 2. The Interactive Mesh Component with fixed uniform handling
 function WaveMesh() {
   const meshRef = useRef<THREE.Mesh>(null!);
   const materialRef = useRef<any>(null!);
@@ -93,39 +93,43 @@ function WaveMesh() {
   const { colorMode } = useColorMode();
   const prefersReducedMotion = useReducedMotion();
 
-  // Color management (must map Chakra's colors which are defined in hex)
+  // Pre-create color instances
   const primaryLight = useMemo(() => new THREE.Color(theme.colors.brand.primary[500]), []);
   const accentLight = useMemo(() => new THREE.Color(theme.colors.brand.accent[400]), []);
   const primaryDark = useMemo(() => new THREE.Color(theme.colors.brand.primary[300]), []);
   const accentDark = useMemo(() => new THREE.Color(theme.colors.brand.accent[600]), []);
 
-
   useFrame(({ clock, camera }) => {
-    if (materialRef.current && materialRef.current.uMouse) {
-      materialRef.current.uTime.value = clock.getElapsedTime();
-      
-      // Safely update the Vector2 uniform
-      if (materialRef.current.uMouse.value && materialRef.current.uMouse.value.set) {
-        materialRef.current.uMouse.value.set(x * 0.5, y * 0.5);
-      }
-      
-      materialRef.current.uDarkMode.value = colorMode === 'dark' ? 1 : 0;
-      
-      // Update shader colors based on theme
-      if (colorMode === 'dark') {
-          materialRef.current.uColorStart.value.copy(primaryDark);
-          materialRef.current.uColorEnd.value.copy(accentDark);
-      } else {
-          materialRef.current.uColorStart.value.copy(primaryLight);
-          materialRef.current.uColorEnd.value.copy(accentLight);
-      }
+    if (!materialRef.current) return;
+
+    const material = materialRef.current;
+    
+    // Update time uniform
+    material.uTime = clock.getElapsedTime();
+    
+    // Update mouse uniform properly - directly set x and y
+    if (material.uMouse) {
+      material.uMouse.x = x * 0.5;
+      material.uMouse.y = y * 0.5;
+    }
+    
+    // Update dark mode flag
+    material.uDarkMode = colorMode === 'dark' ? 1 : 0;
+    
+    // Update shader colors - use set() instead of copy()
+    if (colorMode === 'dark') {
+      material.uColorStart.set(primaryDark.r, primaryDark.g, primaryDark.b);
+      material.uColorEnd.set(accentDark.r, accentDark.g, accentDark.b);
+    } else {
+      material.uColorStart.set(primaryLight.r, primaryLight.g, primaryLight.b);
+      material.uColorEnd.set(accentLight.r, accentLight.g, accentLight.b);
     }
     
     // Camera Parallax
     if (!prefersReducedMotion) {
-        camera.position.x += (x * 0.1 - camera.position.x) * 0.05;
-        camera.position.y += (y * 0.1 - camera.position.y) * 0.05;
-        camera.lookAt(0, 0, 0);
+      camera.position.x += (x * 0.1 - camera.position.x) * 0.05;
+      camera.position.y += (y * 0.1 - camera.position.y) * 0.05;
+      camera.lookAt(0, 0, 0);
     }
   });
 
